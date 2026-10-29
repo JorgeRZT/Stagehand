@@ -34,7 +34,7 @@ Stagehand (formerly "AEM Environment Manager", GitHub repo renamed accordingly) 
 - Config lives in the app config dir (`app_config_dir`, identifier `com.stagehand.app`): `environments.json` and `workspaces.json`. On first run `config::config_dir` copies them from the legacy `com.aemenv.manager` dir if present.
 
 ## Releases
-- Version = calendar date. Installers are committed under `dist/<YYYY.MM.DD>/` (zero-padded folder). The app version in `tauri.conf.json`/`Cargo.toml` is the SemVer-safe form without leading zeros (`2026.10.29`, but `2026.3.5` for March 5th). `scripts/release.sh` does all of it.
+- Version = calendar date. Installers are committed under `dist/<YYYY.MM.DD>/` (zero-padded folder). The app version in `tauri.conf.json`/`Cargo.toml` is the SemVer-safe form without leading zeros (`2026.10.29`, but `2026.3.5` for March 5th). `scripts/release.sh` does all of it; `--publish` also creates the GitHub Release `v<version>` with the DMG attached (commit and push first). The README "Download" section links to the latest release and to the direct asset URL; update the direct link when releasing a new version.
 - Builds are unsigned/not notarized (macOS Gatekeeper warns on first launch). Only the host architecture is built (currently aarch64).
 
 ## Conventions
