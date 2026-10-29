@@ -36,6 +36,10 @@ cargo tauri build      # produce .app/.dmg (macOS), .deb/.AppImage (Linux), .msi
 cd src-tauri && cargo test
 ```
 
+## Releases
+
+Built installers live in `dist/<YYYY.MM.DD>/` (for example `dist/2026.10.29/Stagehand_2026.10.29_aarch64.dmg`). The app version follows the same calendar scheme. Run `scripts/release.sh` to build today's DMG and place it in the right folder. Builds are unsigned and not notarized yet: on first launch, right-click the app and choose *Open*.
+
 ## Usage
 
 Environments are grouped in **workspaces** (for example one per client or project): the selector at the top of the left panel switches workspace, ＋ creates one and ✎ renames or deletes it. Each workspace has its own Author and Publish environments.

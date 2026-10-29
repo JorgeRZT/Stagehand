@@ -1,6 +1,6 @@
 [package]
 name = "stagehand"
-version = "0.1.0"
+version = "2026.10.29"
 description = "Local environment manager for AEM: start, stop and inspect Author/Publish instances"
 edition = "2021"
 

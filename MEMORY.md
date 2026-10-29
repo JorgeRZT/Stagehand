@@ -33,6 +33,10 @@ Stagehand (formerly "AEM Environment Manager", GitHub repo renamed accordingly) 
 - `confirm/alert/prompt` of the WebView are unreliable on macOS: use `api.confirm` / `api.alert` (dialog plugin).
 - Config lives in the app config dir (`app_config_dir`, identifier `com.stagehand.app`): `environments.json` and `workspaces.json`. On first run `config::config_dir` copies them from the legacy `com.aemenv.manager` dir if present.
 
+## Releases
+- Version = calendar date. Installers are committed under `dist/<YYYY.MM.DD>/` (zero-padded folder). The app version in `tauri.conf.json`/`Cargo.toml` is the SemVer-safe form without leading zeros (`2026.10.29`, but `2026.3.5` for March 5th). `scripts/release.sh` does all of it.
+- Builds are unsigned/not notarized (macOS Gatekeeper warns on first launch). Only the host architecture is built (currently aarch64).
+
 ## Conventions
 - English only (see Language policy).
 - New command = function in `commands.rs` + registration in `lib.rs` + wrapper in `ui/api.js`.
