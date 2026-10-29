@@ -2,6 +2,7 @@
 
 > Local environment manager for Adobe Experience Manager.
 
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-stable-000000?logo=rust&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/UI-vanilla%20JS-F7DF1E?logo=javascript&logoColor=black)
@@ -111,6 +112,10 @@ Configuration is stored in `~/Library/Application Support/com.stagehand.app/` (m
 | [docs/PORTING.md](docs/PORTING.md) | Linux / Windows: what changes and how to build |
 
 All code and documentation in this repository is written in English.
+
+## License
+
+[MIT](LICENSE): free to use, modify, distribute and extend, including commercially. Contributions and forks are welcome.
 
 ## Known limitations
 

@@ -37,6 +37,9 @@ Stagehand (formerly "AEM Environment Manager", GitHub repo renamed accordingly) 
 - Version = calendar date. Installers are NOT committed: they are published as GitHub Releases (`v<version>`). Local builds go to the git-ignored `dist/<YYYY.MM.DD>/` (zero-padded folder). The app version in `tauri.conf.json`/`Cargo.toml` is the SemVer-safe form without leading zeros (`2026.10.29`, but `2026.3.5` for March 5th). `scripts/release.sh` does all of it; `--publish` also creates the GitHub Release `v<version>` with the DMG attached (commit and push first; the DMG from `dist/` is uploaded as the release asset). The README "Download" section links to the latest release and to the direct asset URL; update the direct link when releasing a new version.
 - Builds are unsigned/not notarized (macOS Gatekeeper warns on first launch). Only the host architecture is built (currently aarch64).
 
+## License
+MIT (`LICENSE`, copyright Jorge López Pellicer). The repo is public and meant to be extended by anyone; keep new dependencies MIT/Apache-compatible.
+
 ## Documentation assets
 - README screenshots live in `docs/screenshots/` (running instance + logs, workspace/environments, creation wizard, log picker). Retake them when the UI changes noticeably.
 
