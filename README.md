@@ -19,6 +19,8 @@
 - Real-time viewer for any of the instance's logs (`error.log`, `stdout.log`, `request.log`, …) with text search and level filters.
 - Per-environment settings: port, extra runmodes, JVM options (e.g. remote debug) and custom commands.
 
+<p align="center"><img src="docs/screenshots/running-author-logs.png" alt="Stagehand with a running Author instance and its live error.log" width="860"></p>
+
 Stack: **Tauri 2** (Rust backend + plain HTML/JS UI with no build step). Small, cross-platform binaries.
 
 ## Requirements
@@ -55,12 +57,18 @@ Group environments the way you work, for example **one workspace per client or p
 - Existing environments live in a *Default* workspace; at least one workspace always exists.
 
 ### Author and Publish environments
+
+<p align="center"><img src="docs/screenshots/workspace-environments.png" alt="A workspace with an Author and a Publish environment, shown with their A and P icons" width="860"></p>
+
 - Each environment is an **Author** (default port 4502) or **Publish** (default port 4503) instance, shown in the list with an **A** or **P** icon, its status dot and its port.
 - **Create** one with the **＋** next to *Environments*, using a 4-step wizard (**Next** / **Back**; Enter also advances; each step is validated):
   1. **Details:** name, workspace and type.
   2. **Folder and JAR:** pick the environment folder. If it contains a `.jar`, it is used to start the instance; if there are several, you choose which one is AEM; if there is none, you point to the JAR and it is **copied into the folder** when the environment is created.
   3. **Runtime:** port, extra runmodes (`author`/`publish` is added automatically) and JVM options, for example `-Xmx2g` or a remote-debug agent.
   4. **Commands (optional):** custom start and stop commands that override the defaults.
+
+<p align="center"><img src="docs/screenshots/new-environment-wizard.png" alt="The New environment wizard, step 1 of 4" width="860"></p>
+
 - **Edit** an environment at any time with the *Edit* button; every wizard step is reachable. The same dialog lets you move it to another workspace or remove it from the list.
 - **Start:** runs the configured JAR with `java -jar <jar> -r <runmodes> -p <port>`, or `crx-quickstart/bin/start` if no JAR is configured, or your custom start command. The status goes *Starting…* and then *Running* once the port answers.
 - **Stop:** runs `crx-quickstart/bin/stop` (or your custom stop command). If the script fails, Stagehand asks the process listening on the environment's port to exit. The status shows *Stopping…* until the port closes, which can take a couple of minutes; Stop stays enabled so you can retry.
@@ -70,6 +78,8 @@ Group environments the way you work, for example **one workspace per client or p
 
 ### Logs
 Every environment has a built-in log viewer, so nobody needs `tail -f` or to hunt for files in `crx-quickstart/logs`.
+
+<p align="center"><img src="docs/screenshots/log-file-picker.png" alt="Choosing which log file to view from the dropdown" width="860"></p>
 
 - **Any log file:** the dropdown lists every `*.log` in the instance's `crx-quickstart/logs` folder (`error.log`, `stdout.log`, `request.log`, `access.log`, `audit.log`, …), with the most useful ones first. Switch between them at any time.
 - **Live view:** the selected log is tailed in real time (refreshed every second). It starts with the last 64 KB of the file and survives log rotation.
