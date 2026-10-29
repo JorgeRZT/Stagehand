@@ -48,3 +48,6 @@ fieldset.step { border:0; padding:0; margin:0; min-width:0; } fieldset.step:not(
 #steps li.active { color:var(--fg); font-weight:600; border-color:var(--accent); }
 .hint { color:var(--mute); margin:10px 0 0; }
 dialog#dlg { min-height:430px; } dialog#dlg form { display:flex; flex-direction:column; min-height:390px; } dialog#dlg menu { margin-top:auto; }
+#env-list .n { display:flex; align-items:center; gap:7px; min-width:0; } #env-list .nm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.kind-icon { flex:none; width:18px; height:18px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; background:var(--accent); }
+.kind-icon.publish { background:#8b5cf6; }

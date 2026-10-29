@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,12 +10,12 @@
   <aside id="sidebar">
     <div id="ws-bar">
       <select id="ws-select" title="Workspace"></select>
-      <button id="ws-add" title="Nuevo workspace">＋</button>
-      <button id="ws-edit" title="Renombrar o eliminar workspace">✎</button>
+      <button id="ws-add" title="New workspace">＋</button>
+      <button id="ws-edit" title="Rename or delete workspace">✎</button>
     </div>
-    <header><h1>Entornos</h1><button id="btn-add" title="Nuevo entorno">＋</button></header>
+    <header><h1>Environments</h1><button id="btn-add" title="New environment">＋</button></header>
     <ul id="env-list"></ul>
-    <p id="empty" hidden>No hay entornos. Pulsa ＋ para añadir uno.</p>
+    <p id="empty" hidden>No environments yet. Press ＋ to add one.</p>
   </aside>
 
   <main id="main">
@@ -27,74 +27,74 @@
           <span id="env-state" class="state"></span>
         </div>
         <div class="actions">
-          <button id="btn-start" class="primary">▶ Iniciar</button>
-          <button id="btn-stop" class="danger">■ Detener</button>
-          <button id="btn-open">Abrir en navegador</button>
-          <button id="btn-folder">Carpeta</button>
-          <button id="btn-edit">Editar</button>
+          <button id="btn-start" class="primary">▶ Start</button>
+          <button id="btn-stop" class="danger">■ Stop</button>
+          <button id="btn-open">Open in browser</button>
+          <button id="btn-folder">Folder</button>
+          <button id="btn-edit">Edit</button>
         </div>
       </div>
       <div id="msg" class="msg" hidden></div>
 
       <div class="logbar">
         <select id="log-file"></select>
-        <input id="log-filter" placeholder="Filtrar (texto)…" />
+        <input id="log-filter" placeholder="Filter (text)…" />
         <select id="log-level">
-          <option value="">Todos los niveles</option>
+          <option value="">All levels</option>
           <option value="ERROR">ERROR</option>
           <option value="WARN">WARN+</option>
           <option value="INFO">INFO+</option>
         </select>
-        <label><input type="checkbox" id="log-follow" checked /> Seguir</label>
-        <button id="log-clear">Limpiar</button>
+        <label><input type="checkbox" id="log-follow" checked /> Follow</label>
+        <button id="log-clear">Clear</button>
       </div>
       <pre id="log"></pre>
     </section>
-    <p id="placeholder">Selecciona o crea un entorno.</p>
+    <p id="placeholder">Select or create an environment.</p>
   </main>
 
   <dialog id="dlg">
     <form method="dialog" id="form" novalidate>
       <h3 id="dlg-title">Entorno</h3>
-      <ol id="steps"><li>Datos</li><li>Carpeta y JAR</li><li>Ejecución</li><li>Comandos</li></ol>
+      <ol id="steps"><li>Details</li><li>Folder &amp; JAR</li><li>Runtime</li><li>Commands</li></ol>
 
       <fieldset class="step">
-        <label>Nombre <input name="name" required placeholder="Local Author" /></label>
+        <label>Name <input name="name" required placeholder="Local Author" /></label>
         <label>Workspace <select name="workspaceId" id="env-ws"></select></label>
-        <label>Tipo
+        <label>Type
           <select name="kind"><option value="author">Author</option><option value="publish">Publish</option></select>
         </label>
       </fieldset>
 
       <fieldset class="step">
-        <label>Carpeta del entorno
-          <span class="row"><input name="dir" required placeholder="/ruta/a/mi-entorno" /><button type="button" id="pick-dir">…</button></span>
+        <label>Environment folder
+          <span class="row"><input name="dir" required placeholder="/path/to/my-environment" /><button type="button" id="pick-dir">…</button></span>
         </label>
-        <label>JAR de AEM
+        <label>AEM JAR
           <select name="jarChoice" id="jar-choice"></select>
-          <span class="row" id="jar-other" hidden><input name="jar" id="jar-path" readonly placeholder="Selecciona el JAR de AEM…" /><button type="button" id="pick-jar">…</button></span>
+          <span class="row" id="jar-other" hidden><input name="jar" id="jar-path" readonly placeholder="Select the AEM JAR…" /><button type="button" id="pick-jar">…</button></span>
           <small id="jar-hint"></small>
         </label>
       </fieldset>
 
       <fieldset class="step">
-        <label>Puerto <input name="port" type="number" min="1" max="65535" required value="4502" /></label>
-        <label>Runmodes extra (coma) <input name="extraRunmodes" placeholder="local,dev" /></label>
-        <label>Opciones JVM <input name="jvmOpts" placeholder="-Xmx2g -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" /></label>
+        <label>Port <input name="port" type="number" min="1" max="65535" required value="4502" /></label>
+        <label>Extra runmodes (comma separated) <input name="extraRunmodes" placeholder="local,dev" /></label>
+        <label>JVM options <input name="jvmOpts" placeholder="-Xmx2g -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" /></label>
       </fieldset>
 
       <fieldset class="step">
-        <p class="hint">Opcional. Déjalos vacíos para usar el JAR y <code>crx-quickstart/bin/stop</code>.</p>
-        <label>Comando de inicio <input name="startCommand" placeholder="(vacío = java -jar del JAR elegido)" /></label>
-        <label>Comando de parada <input name="stopCommand" placeholder="(vacío = crx-quickstart/bin/stop)" /></label>
+        <p class="hint">Optional. Leave empty to use the JAR and <code>crx-quickstart/bin/stop</code>.</p>
+        <label>Start command <input name="startCommand" placeholder="(empty = java -jar with the chosen JAR)" /></label>
+        <label>Stop command <input name="stopCommand" placeholder="(empty = crx-quickstart/bin/stop)" /></label>
       </fieldset>
 
       <menu>
-        <button type="button" id="btn-delete" class="danger">Eliminar</button>
+        <button type="button" id="btn-delete" class="danger">Delete</button>
         <span class="spacer"></span>
-        <button type="button" id="btn-cancel">Cancelar</button>
-        <button type="button" id="btn-back">Atrás</button>
-        <button type="submit" class="primary" id="btn-next">Siguiente</button>
+        <button type="button" id="btn-cancel">Cancel</button>
+        <button type="button" id="btn-back">Back</button>
+        <button type="submit" class="primary" id="btn-next">Next</button>
       </menu>
     </form>
   </dialog>
@@ -102,12 +102,12 @@
   <dialog id="ws-dlg">
     <form method="dialog" id="ws-form">
       <h3 id="ws-title">Workspace</h3>
-      <label>Nombre <input name="name" id="ws-name" required placeholder="Cliente X" /></label>
+      <label>Nombre <input name="name" id="ws-name" required placeholder="Client X" /></label>
       <menu>
-        <button type="button" id="ws-delete" class="danger">Eliminar</button>
+        <button type="button" id="ws-delete" class="danger">Delete</button>
         <span class="spacer"></span>
-        <button type="button" id="ws-cancel">Cancelar</button>
-        <button type="submit" class="primary">Guardar</button>
+        <button type="button" id="ws-cancel">Cancel</button>
+        <button type="submit" class="primary">Save</button>
       </menu>
     </form>
   </dialog>

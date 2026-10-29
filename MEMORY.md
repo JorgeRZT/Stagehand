@@ -1,55 +1,60 @@
-# MEMORY.md – contexto para LLMs / futuros colaboradores
+# MEMORY.md – context for LLMs / future contributors
 
-> Lee este archivo antes de tocar el código. Mantenlo actualizado al terminar cada cambio relevante (sección "Estado" y "Decisiones").
+> Read this file before touching the code. Keep it up to date after every relevant change (sections "Status" and "Key decisions").
 
-## Qué es
-App de escritorio para gestionar instancias AEM locales (Author/Publish): start, stop, logs. Objetivo: que los equipos no usen terminal. Primero macOS, portable a Linux/Windows.
+## Language policy
+**Everything in this repo is written in English**: README, MEMORY.md, docs, code, comments, UI text, error messages, commit messages, issues/PRs. Do not add Spanish (or any other language) to files. Chat with the maintainer may happen in any language.
 
-## Stack y por qué
-- **Tauri 2** (Rust + WebView del SO). Elegido sobre Electron por tamaño y multiplataforma sin reescribir. Sin Node en runtime.
-- **UI = HTML/CSS/JS plano en `ui/`**, sin framework ni bundler (`withGlobalTauri: true`). Decisión consciente: cero paso de build, fácil de editar por LLMs. Si crece mucho, migrar a Vite + framework y cambiar `frontendDist` en `tauri.conf.json`.
+## What it is
+Desktop app to manage local AEM instances (Author/Publish): start, stop, logs. Goal: development teams should not need a terminal. macOS first, portable to Linux/Windows.
 
-## Mapa de archivos
-- `src-tauri/src/lib.rs` – registro de módulos y comandos (`generate_handler!`).
-- `src-tauri/src/config.rs` – modelo `Environment` + persistencia JSON.
-- `src-tauri/src/instance.rs` – start/stop/status (ÚNICO lugar que lanza procesos).
-- `src-tauri/src/logs.rs` – listar y leer logs incrementalmente por offset.
-- `src-tauri/src/commands.rs` – capa fina `#[tauri::command]`.
-- `ui/api.js` – ÚNICO sitio que usa `invoke`. `ui/app.js` – lógica UI. `ui/styles.css`, `ui/index.html`.
+## Stack and why
+- **Tauri 2** (Rust + the OS WebView). Chosen over Electron for size and cross-platform builds without rewrites. No Node at runtime.
+- **UI = plain HTML/CSS/JS in `ui/`**, no framework or bundler (`withGlobalTauri: true`). Deliberate decision: zero build step, easy for LLMs to edit. If it grows a lot, migrate to Vite + a framework and change `frontendDist` in `tauri.conf.json`.
+
+## File map
+- `src-tauri/src/lib.rs` – module and command registration (`generate_handler!`).
+- `src-tauri/src/config.rs` – `Environment` / `Workspace` models + JSON persistence.
+- `src-tauri/src/instance.rs` – start/stop/status (the ONLY place that spawns processes).
+- `src-tauri/src/logs.rs` – list logs and read them incrementally by offset.
+- `src-tauri/src/commands.rs` – thin `#[tauri::command]` layer.
+- `ui/api.js` – the ONLY place that uses `invoke`. `ui/app.js` – UI logic. `ui/styles.css`, `ui/index.html`.
 - `docs/` – ARCHITECTURE, EXTENDING, PORTING.
 
-## Decisiones clave
-- Arranque: orden `startCommand` → **JAR configurado (`jar`, nombre de archivo dentro de `dir`) con `java -jar … -r <runmodes> -p <port>`** → `crx-quickstart/bin/start`. Parada: `stopCommand` → `crx-quickstart/bin/stop`.
-- Al crear un entorno la UI escanea `*.jar` de la carpeta (`scan_jars`): 1 → auto, varios → el usuario elige, 0 → se pide la ruta y `save_environment` lo **copia a `dir`** (async) guardando solo el nombre.
-- Estado = puerto TCP abierto en 127.0.0.1 + transición en memoria (`Transitions`). No guardamos PIDs; así también detecta instancias lanzadas fuera de la app.
-- Logs por **polling con offset** (UI cada 1 s) en vez de watchers: igual en todos los SO, soporta rotación.
-- `read_log` rechaza nombres con `/`, `\`, `..` (path traversal). `open_url` solo http/https.
-- **Workspaces**: `Workspace{id,name}` en `workspaces.json`; cada `Environment` tiene `workspaceId`. Entornos antiguos sin campo → workspace `default` (siempre existe al menos uno). La UI guarda todos los entornos en memoria y filtra por `currentWs` (último elegido en localStorage). Borrar un workspace borra sus entradas de entornos, no archivos.
-- El formulario de entorno es un **asistente por pasos** (Datos → Carpeta y JAR → Ejecución → Comandos): un `<fieldset class="step">` por paso en `ui/index.html`, lógica en `ui/app.js` (`showStep`, `validateStep`, `goNext`). Validación por paso (el `<form>` es `novalidate`); Enter avanza. Al editar se puede saltar entre pasos.
-- `confirm/alert/prompt` del WebView no son fiables en macOS: usar `api.confirm/api.alert` (plugin dialog).
-- Config en el directorio de config de la app (`app_config_dir`), `environments.json`.
+## Key decisions
+- Start order: `startCommand` → **configured JAR (`jar`, a file name inside `dir`) via `java -jar … -r <runmodes> -p <port>`** → `crx-quickstart/bin/start`. Stop: `stopCommand` → `crx-quickstart/bin/stop` → fallback (see Gotchas).
+- When creating an environment the UI scans the folder for `*.jar` (`scan_jars`): 1 → auto-selected, several → the user chooses, 0 → the user is asked for the path and `save_environment` **copies the jar into `dir`** (async) and stores only the file name.
+- Status = TCP port open on 127.0.0.1 + in-memory transition (`Transitions`). PIDs are not stored, so instances started outside the app are detected too.
+- Logs use **polling with an offset** (UI every 1 s) instead of file watchers: identical on every OS and handles rotation.
+- `read_log` rejects names containing `/`, `\`, `..` (path traversal). `open_url` only allows http/https.
+- **Workspaces**: `Workspace{id,name}` in `workspaces.json`; every `Environment` has a `workspaceId`. Old environments without the field → workspace `default` (at least one workspace always exists). The UI keeps all environments in memory and filters by `currentWs` (last choice stored in localStorage). Deleting a workspace removes its environment entries, never files.
+- The environment form is a **step-by-step wizard** (Details → Folder & JAR → Runtime → Commands): one `<fieldset class="step">` per step in `ui/index.html`, logic in `ui/app.js` (`showStep`, `validateStep`, `goNext`). Per-step validation (the `<form>` is `novalidate`); Enter advances. When editing, any step can be jumped to.
+- The sidebar list shows an `A` (Author, blue) / `P` (Publish, purple) icon before each environment name (`.kind-icon`).
+- `confirm/alert/prompt` of the WebView are unreliable on macOS: use `api.confirm` / `api.alert` (dialog plugin).
+- Config lives in the app config dir (`app_config_dir`): `environments.json` and `workspaces.json`.
 
-## Convenciones
-- Comando nuevo = función en `commands.rs` + registro en `lib.rs` + wrapper en `ui/api.js`.
-- Errores del backend son `String` y la UI los muestra en el banner `#msg`.
-- No añadir lógica de procesos fuera de `instance.rs`.
-- Código específico de SO con `cfg!`/`#[cfg(...)]` y documentarlo en `docs/PORTING.md`.
+## Conventions
+- English only (see Language policy).
+- New command = function in `commands.rs` + registration in `lib.rs` + wrapper in `ui/api.js`.
+- Backend errors are `String`s and the UI shows them in the `#msg` banner.
+- No process-spawning logic outside `instance.rs`.
+- OS-specific code via `cfg!` / `#[cfg(...)]`, documented in `docs/PORTING.md`.
 
-## Estado
-- [x] CRUD de entornos, start/stop/status, visor de logs con filtros, abrir navegador/carpeta.
-- [ ] Probado contra una instancia AEM real (se verificó compilación; el autor no tenía quickstart a mano).
-- [ ] Probado en Linux/Windows (código preparado, no ejecutado).
-- [x] Test unitario de `logs` (`cd src-tauri && cargo test`). Falta cobertura de `instance`/`config`.
-- [x] `cargo tauri build --bundles app` genera el .app en `src-tauri/target/release/bundle/macos/`.
-- Icono: fuente `app-icon.png`; regenerar con `cargo tauri icon app-icon.png`.
+## Status
+- [x] Environment CRUD, workspaces, start/stop/status, log viewer with filters, open browser/folder.
+- [ ] Tested against a real AEM instance end to end (compilation and unit test verified; stop fallback added after a real failure report).
+- [ ] Tested on Linux/Windows (code prepared, never executed).
+- [x] Unit test for `logs` (`cd src-tauri && cargo test`). `instance`/`config` have no coverage yet.
+- [x] `cargo tauri build --bundles app` produces the .app in `src-tauri/target/release/bundle/macos/`.
+- Icon: source is `app-icon.png`; regenerate with `cargo tauri icon app-icon.png`.
 
-## Ideas / siguientes pasos
-Importar entornos escaneando carpetas; perfiles de memoria; ver estado de bundles vía `/system/console`; bandeja del sistema; notificación al terminar de arrancar; empaquetar y firmar (notarización macOS); auto-update.
+## Ideas / next steps
+Import environments by scanning folders; memory profiles; bundle status via `/system/console`; system tray; notification when startup finishes; packaging and signing (macOS notarization); auto-update.
 
 ## Gotchas
-- Si `bin/stop` falla (típico: instancia lanzada con `java -jar`, sin `cq.pid`; salida «cq.pid not found / Unable to access jarfile stop»), `instance::stop` hace fallback: SIGTERM (`kill -TERM`/`taskkill`) al proceso que escucha en el puerto (`lsof`/`netstat`). Ojo: mata cualquier proceso que use ese puerto.
-- `stop` espera (máx. 30 s) a que termine `bin/stop` y devuelve su salida si falla (exit ≠ 0); antes lo descartaba y la UI se quedaba en «Deteniendo…». El estado «Deteniendo» solo acaba cuando el puerto se cierra (AEM puede tardar minutos); el botón Detener sigue activo para reintentar.
-- Los scripts `bin/start|stop` desempaquetados pueden no tener el bit de ejecución (error `Permission denied (os error 13)`): en Unix se ejecutan con `bash <script>` (`instance::script_command`), nunca directamente.
-- `bin/start` daemoniza: el proceso hijo termina enseguida, por eso no se guarda PID.
-- En Windows `start.bat` no demoniza igual; revisar `docs/PORTING.md`.
-- Con `withGlobalTauri` la API está en `window.__TAURI__` (no hay imports ES de `@tauri-apps/api`).
+- If `bin/stop` fails (typical: instance started with `java -jar`, so no `cq.pid`; output like "cq.pid not found / Unable to access jarfile stop"), `instance::stop` falls back to SIGTERM (`kill -TERM` / `taskkill`) on the process listening on the port (`lsof` / `netstat`). Beware: it signals any process using that port.
+- `stop` waits (max 30 s) for `bin/stop` to exit and returns its output if it fails (exit ≠ 0); it used to discard it and the UI stayed in "Stopping…". "Stopping" only ends when the port closes (AEM can take minutes); the Stop button stays enabled to retry.
+- Unpacked `bin/start|stop` scripts may lack the executable bit (`Permission denied (os error 13)`): on Unix they are run as `bash <script>` (`instance::script_command`), never directly.
+- `bin/start` daemonizes: the child exits quickly, which is why no PID is stored.
+- On Windows `start.bat` does not daemonize the same way; see `docs/PORTING.md`.
+- With `withGlobalTauri` the API is at `window.__TAURI__` (no ES imports from `@tauri-apps/api`).

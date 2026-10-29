@@ -1,6 +1,6 @@
 // UI logic. State is kept in a few module-level variables; rendering is imperative and small.
 const $ = (id) => document.getElementById(id);
-const STATE_LABEL = { stopped: 'Detenido', starting: 'Iniciando…', running: 'En ejecución', stopping: 'Deteniendo…' };
+const STATE_LABEL = { stopped: 'Stopped', starting: 'Starting…', running: 'Running', stopping: 'Stopping…' };
 const MAX_LOG_CHARS = 400_000;
 
 let workspaces = [];
@@ -48,8 +48,9 @@ function renderList() {
   $('env-list').replaceChildren(...list.map((e) => {
     const li = document.createElement('li');
     li.className = e.id === selectedId ? 'active' : '';
-    li.innerHTML = `<span class="dot ${statuses[e.id] || 'stopped'}"></span><span class="n"></span><small>${e.kind} :${e.port}</small>`;
-    li.querySelector('.n').textContent = e.name;
+    const letter = e.kind === 'author' ? 'A' : 'P';
+    li.innerHTML = `<span class="dot ${statuses[e.id] || 'stopped'}"></span><span class="n"><b class="kind-icon ${e.kind}" title="${e.kind}">${letter}</b><span class="nm"></span></span><small>${e.kind} :${e.port}</small>`;
+    li.querySelector('.nm').textContent = e.name;
     li.onclick = () => select(e.id);
     return li;
   }));
@@ -99,7 +100,7 @@ async function resetLog(env) {
   const files = (await api.listLogs(env.id)) || [];
   $('log-file').replaceChildren(...files.map((f) => new Option(f, f)));
   log.file = files[0] ?? null;
-  if (!log.file) $('log').textContent = 'Sin logs todavía (crx-quickstart/logs no existe).';
+  if (!log.file) $('log').textContent = 'No logs yet (crx-quickstart/logs does not exist).';
   await pollLog();
 }
 
@@ -149,15 +150,15 @@ async function loadJars(dir, current = '') {
   const jars = dir ? ((await api.scanJars(dir)) || []) : [];
   const sel = $('jar-choice');
   const opts = [];
-  if (jars.length > 1 && !jars.includes(current)) opts.push(new Option('— Elige el JAR de AEM —', ''));
+  if (jars.length > 1 && !jars.includes(current)) opts.push(new Option('— Choose the AEM JAR —', ''));
   opts.push(...jars.map((j) => new Option(j, j)));
-  opts.push(new Option('Otro JAR (se copiará a la carpeta)…', OTHER));
+  opts.push(new Option('Another JAR (will be copied to the folder)…', OTHER));
   sel.replaceChildren(...opts);
   sel.value = jars.includes(current) ? current : jars.length === 1 ? jars[0] : jars.length === 0 ? OTHER : '';
   $('jar-path').value = '';
   $('jar-hint').textContent = !dir ? '' : jars.length === 0
-    ? 'No hay ningún JAR en la carpeta: indica dónde está; se copiará a la carpeta del entorno.'
-    : jars.length > 1 ? 'Hay varios JAR en la carpeta: elige cuál es el de AEM.' : '';
+    ? 'No JAR found in the folder: select where it is; it will be copied into the environment folder.'
+    : jars.length > 1 ? 'Several JARs found in the folder: choose which one is AEM.' : '';
   updateJarUI();
 }
 function updateJarUI() { $('jar-other').hidden = $('jar-choice').value !== OTHER; }
@@ -179,7 +180,7 @@ function showStep(n) {
   });
   const last = step === els.length - 1;
   $('btn-back').hidden = step === 0;
-  $('btn-next').textContent = last ? (editing ? 'Guardar' : 'Crear entorno') : 'Siguiente';
+  $('btn-next').textContent = last ? (editing ? 'Save' : 'Create environment') : 'Next';
   els[step].querySelector('input:not([readonly]), select')?.focus();
 }
 
@@ -190,8 +191,8 @@ function validateStep(n) {
     if (!input.checkValidity()) { input.reportValidity(); return 'invalid'; }
   }
   if (n === 1) {
-    if ($('jar-choice').value === '') return 'Elige el JAR de AEM.';
-    if ($('jar-choice').value === OTHER && !$('jar-path').value) return 'Selecciona el JAR de AEM (o deja la carpeta con uno dentro).';
+    if ($('jar-choice').value === '') return 'Choose the AEM JAR.';
+    if ($('jar-choice').value === OTHER && !$('jar-path').value) return 'Select the AEM JAR (or use a folder that already contains one).';
   }
   return null;
 }
@@ -212,7 +213,7 @@ $('steps').onclick = (ev) => {
 function openDialog(env) {
   editing = env;
   const f = $('form');
-  $('dlg-title').textContent = env ? 'Editar entorno' : 'Nuevo entorno';
+  $('dlg-title').textContent = env ? 'Edit environment' : 'New environment';
   $('btn-delete').hidden = !env;
   $('env-ws').replaceChildren(...workspaces.map((w) => new Option(w.name, w.id)));
   const d = env || { workspaceId: currentWs, name: '', kind: 'author', dir: '', jar: '', port: 4502, extraRunmodes: '', jvmOpts: '', startCommand: '', stopCommand: '' };
@@ -241,7 +242,7 @@ $('btn-cancel').onclick = () => $('dlg').close();
 $('btn-add').onclick = () => openDialog(null);
 $('btn-edit').onclick = () => openDialog(selected());
 $('btn-delete').onclick = guard(async () => {
-  if (!(await api.confirm(`¿Eliminar "${editing.name}" de la lista? (No borra archivos)`))) return;
+  if (!(await api.confirm(`Remove "${editing.name}" from the list? (Files are not deleted)`))) return;
   await api.deleteEnvironment(editing.id);
   $('dlg').close();
   await refreshEnvs();
@@ -249,7 +250,7 @@ $('btn-delete').onclick = guard(async () => {
 $('form').onsubmit = async (ev) => {
   ev.preventDefault(); // keep the dialog open if validation or saving fails
   try {
-  if (!(await goNext())) return; // not on the last step yet (Enter/Siguiente just advances)
+  if (!(await goNext())) return; // not on the last step yet (Enter/Next just advances)
   for (let i = 0; i < step; i++) { const e = validateStep(i); if (e) { showStep(i); if (e !== 'invalid') await api.alert(e); return; } }
   const f = $('form').elements;
   const env = {
@@ -273,7 +274,7 @@ let editingWs = null;    // workspace being edited (null = new)
 
 function openWsDialog(ws) {
   editingWs = ws;
-  $('ws-title').textContent = ws ? 'Renombrar workspace' : 'Nuevo workspace';
+  $('ws-title').textContent = ws ? 'Rename workspace' : 'New workspace';
   $('ws-name').value = ws ? ws.name : '';
   $('ws-delete').hidden = !ws;
   $('ws-dlg').showModal();
@@ -292,7 +293,7 @@ $('ws-cancel').onclick = () => $('ws-dlg').close();
 $('ws-delete').onclick = async () => {
   try {
     const n = envs.filter((e) => e.workspaceId === editingWs.id).length;
-    if (!(await api.confirm(`¿Eliminar el workspace "${editingWs.name}" y sus ${n} entorno(s) de la lista? (No borra archivos ni detiene instancias)`))) return;
+    if (!(await api.confirm(`Remove workspace "${editingWs.name}" and its ${n} environment(s) from the list? (Files are not deleted and instances are not stopped)`))) return;
     await api.deleteWorkspace(editingWs.id);
     $('ws-dlg').close();
     await refreshEnvs();

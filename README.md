@@ -1,50 +1,67 @@
 # AEM Environment Manager
 
-App de escritorio (macOS primero; Linux y Windows con el mismo código) para **iniciar, detener y ver los logs** de instancias locales de **Adobe Experience Manager** (Author y Publish) sin usar la terminal.
+![Tauri 2](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-stable-000000?logo=rust&logoColor=white)
+![JavaScript](https://img.shields.io/badge/UI-vanilla%20JS-F7DF1E?logo=javascript&logoColor=black)
+![Adobe Experience Manager](https://img.shields.io/badge/Adobe-AEM-EB1000?logo=adobe&logoColor=white)
+![macOS](https://img.shields.io/badge/macOS-supported-000000?logo=apple&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-untested-FCC624?logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-untested-0078D6?logo=windows&logoColor=white)
+![LLM friendly](https://img.shields.io/badge/docs-LLM%20friendly-8A2BE2)
 
-- Lista de entornos con estado en vivo (Detenido / Iniciando / En ejecución / Deteniendo).
-- Botones Iniciar / Detener / Abrir en navegador / Abrir carpeta.
-- Visor de logs en tiempo real (`error.log`, `stdout.log`, `request.log`, …) con filtro de texto y de nivel.
-- Configuración por entorno: puerto, runmodes extra, opciones JVM (p. ej. debug remoto) y comandos personalizados.
+Desktop app (macOS first; Linux and Windows from the same code) to **start, stop and read the logs** of local **Adobe Experience Manager** instances (Author and Publish) without using the terminal.
 
-Stack: **Tauri 2** (backend Rust + UI HTML/JS sin build step). Binarios pequeños y multiplataforma.
+- Workspaces to group environments (e.g. one per client or project).
+- Environment list with live status (Stopped / Starting / Running / Stopping).
+- Start / Stop / Open in browser / Open folder buttons.
+- Real-time log viewer (`error.log`, `stdout.log`, `request.log`, …) with text and level filters.
+- Per-environment settings: port, extra runmodes, JVM options (e.g. remote debug) and custom commands.
 
-## Requisitos
+Stack: **Tauri 2** (Rust backend + plain HTML/JS UI with no build step). Small, cross-platform binaries.
 
-- Rust (`rustup`) y Tauri CLI: `cargo install tauri-cli --version "^2" --locked`
-- Java instalado (el que necesite tu versión de AEM) para ejecutar las instancias.
+## Requirements
+
+- Rust (`rustup`) and the Tauri CLI: `cargo install tauri-cli --version "^2" --locked`
+- Java installed (the version your AEM release needs) to run the instances.
 - macOS: Xcode Command Line Tools (`xcode-select --install`).
-- Linux: dependencias WebKitGTK (ver https://tauri.app/start/prerequisites/). Windows: WebView2 + MSVC.
+- Linux: WebKitGTK dependencies (see https://tauri.app/start/prerequisites/). Windows: WebView2 + MSVC.
 
-## Uso en desarrollo
+## Development
 
 ```bash
-cargo tauri dev        # ejecuta la app con recarga de la UI
-cargo tauri build      # genera .app/.dmg (macOS), .deb/.AppImage (Linux), .msi (Windows)
+cargo tauri dev        # run the app with UI reload
+cargo tauri build      # produce .app/.dmg (macOS), .deb/.AppImage (Linux), .msi (Windows)
+cd src-tauri && cargo test
 ```
 
-## Cómo se usa
+## Usage
 
-Los entornos se agrupan en **workspaces** (por ejemplo, uno por cliente o proyecto): el selector de la parte superior del panel izquierdo cambia de workspace, ＋ crea uno y ✎ lo renombra o elimina. Cada workspace tiene sus propios Author y Publish.
+Environments are grouped in **workspaces** (for example one per client or project): the selector at the top of the left panel switches workspace, ＋ creates one and ✎ renames or deletes it. Each workspace has its own Author and Publish environments.
 
-1. Pulsa **＋** y sigue el asistente de 4 pasos con **Siguiente**: datos (nombre, workspace, tipo: Author 4502 / Publish 4503), carpeta del entorno y JAR (si la carpeta contiene un `.jar` se usa para arrancar; si hay varios eliges cuál es el de AEM; si no hay ninguno indicas dónde está y se copia a esa carpeta), y por último puerto, runmodes y opciones JVM, más comandos personalizados opcionales.
-2. Selecciona el entorno y pulsa **Iniciar**. El estado pasa a *En ejecución* cuando el puerto responde.
-3. Elige el log en el desplegable; se actualiza cada segundo. Usa los filtros para buscar texto o nivel.
-4. **Detener** ejecuta `crx-quickstart/bin/stop`.
+1. Press **＋** and follow the 4-step wizard with **Next**:
+   1. Details: name, workspace, type (Author 4502 / Publish 4503).
+   2. Folder and JAR: if the folder contains a `.jar` it is used to start the instance; if there are several you choose which one is AEM; if there is none you point to it and it is copied into the folder.
+   3. Runtime: port, extra runmodes and JVM options.
+   4. Optional custom start/stop commands.
+2. Select the environment and press **Start**. The status becomes *Running* once the port answers.
+3. Pick a log in the dropdown; it refreshes every second. Use the filters to search by text or level.
+4. **Stop** runs `crx-quickstart/bin/stop`; if that fails it asks the process listening on the port to exit.
 
-La configuración se guarda en `~/Library/Application Support/com.aemenv.manager/environments.json` (macOS), `~/.config/com.aemenv.manager/` (Linux) o `%APPDATA%\com.aemenv.manager\` (Windows).
+Configuration is stored in `~/Library/Application Support/com.aemenv.manager/` (macOS), `~/.config/com.aemenv.manager/` (Linux) or `%APPDATA%\com.aemenv.manager\` (Windows), as `environments.json` and `workspaces.json`.
 
-## Documentación
+## Documentation
 
-| Archivo | Contenido |
+| File | Content |
 |---|---|
-| [MEMORY.md](MEMORY.md) | Contexto compacto para LLMs: decisiones, convenciones, estado, gotchas. **Leer primero.** |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Módulos, flujo de datos, API backend↔UI |
-| [docs/EXTENDING.md](docs/EXTENDING.md) | Recetas paso a paso para añadir funcionalidades |
-| [docs/PORTING.md](docs/PORTING.md) | Linux / Windows: qué cambia y cómo compilar |
+| [MEMORY.md](MEMORY.md) | Compact context for LLMs: decisions, conventions, status, gotchas. **Read first.** |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Modules, data flow, backend ↔ UI API |
+| [docs/EXTENDING.md](docs/EXTENDING.md) | Step-by-step recipes to add features |
+| [docs/PORTING.md](docs/PORTING.md) | Linux / Windows: what changes and how to build |
 
-## Limitaciones conocidas
+All code and documentation in this repository is written in English.
 
-- No hay tests automáticos aún; verificado manualmente.
-- "Iniciando" termina cuando el puerto HTTP acepta conexiones, aunque AEM aún cargue bundles.
-- El estado se detecta por puerto: una instancia arrancada fuera de la app también aparece como *En ejecución*.
+## Known limitations
+
+- Automated tests only cover log reading.
+- "Starting" ends when the HTTP port accepts connections, even if AEM is still loading bundles.
+- Status is detected by port: an instance started outside the app also shows as *Running*.

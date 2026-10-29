@@ -1,19 +1,20 @@
-# Linux y Windows
+# Linux and Windows
 
-El código es el mismo; solo cambia el empaquetado.
+The code is the same; only packaging changes.
 
-| Tema | macOS | Linux | Windows |
+| Topic | macOS | Linux | Windows |
 |---|---|---|---|
 | Build | `cargo tauri build` → .app/.dmg | → .deb/.rpm/.AppImage | → .msi/.exe (NSIS) |
-| Requisitos | Xcode CLT | `webkit2gtk-4.1`, `libayatana-appindicator` etc. | WebView2, MSVC |
-| Abrir URL/carpeta | `open` | `xdg-open` | `cmd /C start` |
-| Scripts AEM | `bin/start` | `bin/start` | `bin/start.bat` |
-| Shell overrides | `sh -c` | `sh -c` | `cmd /C` |
+| Requirements | Xcode CLT | `webkit2gtk-4.1`, `libayatana-appindicator`, etc. | WebView2, MSVC |
+| Open URL/folder | `open` | `xdg-open` | `cmd /C start` |
+| AEM scripts | `bash bin/start` | `bash bin/start` | `bin/start.bat` |
+| Command overrides | `sh -c` | `sh -c` | `cmd /C` |
+| Find process on port | `lsof` | `lsof` | `netstat -ano` + `taskkill` |
 
-Ya implementado con `cfg!` en `instance.rs` y `commands.rs::open_with_os`.
+Already implemented with `cfg!` / `#[cfg]` in `instance.rs` and `commands.rs::open_with_os`.
 
-## Pendiente de validar en Windows/Linux
-- `start.bat` puede quedarse en primer plano; si bloquea, usar `startCommand` con `start /B ...` o spawn desacoplado.
-- Rutas con espacios en `startCommand`.
-- Compilar cada SO en su propio runner (Tauri no cross-compila bien con WebView); ejemplo CI: GitHub Actions con `tauri-apps/tauri-action` en matriz macOS/ubuntu/windows.
-- Notarización/firma macOS y firma Windows son pasos aparte.
+## Still to validate on Windows/Linux
+- `start.bat` may stay in the foreground; if it blocks, use `startCommand` with `start /B ...` or a detached spawn.
+- Paths with spaces in `startCommand`.
+- Build each OS on its own runner (Tauri does not cross-compile well with WebViews); example CI: GitHub Actions with `tauri-apps/tauri-action` on a macOS/ubuntu/windows matrix.
+- macOS notarization/signing and Windows signing are separate steps.
