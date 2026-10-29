@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    aem_environment_manager_lib::run()
+    stagehand_lib::run()
 }

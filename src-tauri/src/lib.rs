@@ -1,4 +1,4 @@
-//! AEM Environment Manager – backend entry point.
+//! Stagehand – backend entry point.
 //!
 //! Layout (see docs/ARCHITECTURE.md):
 //! - `config`   : persisted list of environments (JSON in the OS config dir)
@@ -32,5 +32,5 @@ pub fn run() {
             commands::reveal_path,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running AEM Environment Manager");
+        .expect("error while running Stagehand");
 }

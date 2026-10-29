@@ -1,4 +1,4 @@
-# MEMORY.md – context for LLMs / future contributors
+# MEMORY.md – Stagehand: context for LLMs / future contributors
 
 > Read this file before touching the code. Keep it up to date after every relevant change (sections "Status" and "Key decisions").
 
@@ -6,7 +6,7 @@
 **Everything in this repo is written in English**: README, MEMORY.md, docs, code, comments, UI text, error messages, commit messages, issues/PRs. Do not add Spanish (or any other language) to files. Chat with the maintainer may happen in any language.
 
 ## What it is
-Desktop app to manage local AEM instances (Author/Publish): start, stop, logs. Goal: development teams should not need a terminal. macOS first, portable to Linux/Windows.
+Stagehand (formerly "AEM Environment Manager", GitHub repo renamed accordingly) is a desktop app to manage local AEM instances (Author/Publish): start, stop, logs. Goal: development teams should not need a terminal. macOS first, portable to Linux/Windows.
 
 ## Stack and why
 - **Tauri 2** (Rust + the OS WebView). Chosen over Electron for size and cross-platform builds without rewrites. No Node at runtime.
@@ -31,7 +31,7 @@ Desktop app to manage local AEM instances (Author/Publish): start, stop, logs. G
 - The environment form is a **step-by-step wizard** (Details → Folder & JAR → Runtime → Commands): one `<fieldset class="step">` per step in `ui/index.html`, logic in `ui/app.js` (`showStep`, `validateStep`, `goNext`). Per-step validation (the `<form>` is `novalidate`); Enter advances. When editing, any step can be jumped to.
 - The sidebar list shows an `A` (Author, blue) / `P` (Publish, purple) icon before each environment name (`.kind-icon`).
 - `confirm/alert/prompt` of the WebView are unreliable on macOS: use `api.confirm` / `api.alert` (dialog plugin).
-- Config lives in the app config dir (`app_config_dir`): `environments.json` and `workspaces.json`.
+- Config lives in the app config dir (`app_config_dir`, identifier `com.stagehand.app`): `environments.json` and `workspaces.json`. On first run `config::config_dir` copies them from the legacy `com.aemenv.manager` dir if present.
 
 ## Conventions
 - English only (see Language policy).
@@ -49,7 +49,9 @@ Desktop app to manage local AEM instances (Author/Publish): start, stop, logs. G
 - Icon: source is `app-icon.png`; regenerate with `cargo tauri icon app-icon.png`.
 
 ## Ideas / next steps
-Import environments by scanning folders; memory profiles; bundle status via `/system/console`; system tray; notification when startup finishes; packaging and signing (macOS notarization); auto-update.
+**Next planned step: local Dispatcher support** (new `dispatcher` environment kind) — see [ROADMAP.md](ROADMAP.md).
+
+Other ideas: Import environments by scanning folders; memory profiles; bundle status via `/system/console`; system tray; notification when startup finishes; packaging and signing (macOS notarization); auto-update.
 
 ## Gotchas
 - If `bin/stop` fails (typical: instance started with `java -jar`, so no `cq.pid`; output like "cq.pid not found / Unable to access jarfile stop"), `instance::stop` falls back to SIGTERM (`kill -TERM` / `taskkill`) on the process listening on the port (`lsof` / `netstat`). Beware: it signals any process using that port.

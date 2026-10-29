@@ -77,7 +77,7 @@ mod tests {
 
     #[test]
     fn reads_incrementally_and_rejects_traversal() {
-        let tmp = std::env::temp_dir().join(format!("aemenv-test-{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("stagehand-test-{}", std::process::id()));
         let logs = tmp.join("crx-quickstart/logs");
         std::fs::create_dir_all(&logs).unwrap();
         std::fs::write(logs.join("error.log"), "one\n").unwrap();

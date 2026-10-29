@@ -1,5 +1,6 @@
 //! Environment definitions, persisted as JSON in the OS app-config directory
-//! (macOS: ~/Library/Application Support/com.aemenv.manager/environments.json).
+//! (macOS: ~/Library/Application Support/com.stagehand.app/environments.json).
+//! Files from the previous app identifier (`com.aemenv.manager`) are copied over on first use.
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -66,10 +67,26 @@ pub struct Environment {
     pub stop_command: String,
 }
 
-fn file(app: &AppHandle) -> Result<PathBuf, String> {
+/// Identifier used before the project was renamed to Stagehand.
+const LEGACY_IDENTIFIER: &str = "com.aemenv.manager";
+const FILES: [&str; 2] = ["environments.json", "workspaces.json"];
+
+fn config_dir(app: &AppHandle) -> Result<PathBuf, String> {
     let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
-    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    Ok(dir.join("environments.json"))
+    if !dir.exists() {
+        std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+        // One-time migration of configs created under the old identifier.
+        if let Some(legacy) = dir.parent().map(|p| p.join(LEGACY_IDENTIFIER)).filter(|p| p.is_dir()) {
+            for name in FILES {
+                let _ = std::fs::copy(legacy.join(name), dir.join(name));
+            }
+        }
+    }
+    Ok(dir)
+}
+
+fn file(app: &AppHandle) -> Result<PathBuf, String> {
+    Ok(config_dir(app)?.join("environments.json"))
 }
 
 pub fn load(app: &AppHandle) -> Result<Vec<Environment>, String> {

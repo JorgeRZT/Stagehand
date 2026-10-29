@@ -1,11 +1,11 @@
 [package]
-name = "aem-environment-manager"
+name = "stagehand"
 version = "0.1.0"
-description = "Desktop app to start, stop and inspect local AEM Author/Publish instances"
+description = "Local environment manager for AEM: start, stop and inspect Author/Publish instances"
 edition = "2021"
 
 [lib]
-name = "aem_environment_manager_lib"
+name = "stagehand_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

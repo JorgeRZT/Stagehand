@@ -1,4 +1,6 @@
-# AEM Environment Manager
+# Stagehand
+
+> Local environment manager for Adobe Experience Manager.
 
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-stable-000000?logo=rust&logoColor=white)
@@ -9,7 +11,7 @@
 ![Windows](https://img.shields.io/badge/Windows-untested-0078D6?logo=windows&logoColor=white)
 ![LLM friendly](https://img.shields.io/badge/docs-LLM%20friendly-8A2BE2)
 
-Desktop app (macOS first; Linux and Windows from the same code) to **start, stop and read the logs** of local **Adobe Experience Manager** instances (Author and Publish) without using the terminal.
+**Stagehand** is a desktop app (macOS first; Linux and Windows from the same code) to **start, stop and read the logs** of local **Adobe Experience Manager** instances (Author and Publish) without using the terminal.
 
 - Workspaces to group environments (e.g. one per client or project).
 - Environment list with live status (Stopped / Starting / Running / Stopping).
@@ -47,12 +49,13 @@ Environments are grouped in **workspaces** (for example one per client or projec
 3. Pick a log in the dropdown; it refreshes every second. Use the filters to search by text or level.
 4. **Stop** runs `crx-quickstart/bin/stop`; if that fails it asks the process listening on the port to exit.
 
-Configuration is stored in `~/Library/Application Support/com.aemenv.manager/` (macOS), `~/.config/com.aemenv.manager/` (Linux) or `%APPDATA%\com.aemenv.manager\` (Windows), as `environments.json` and `workspaces.json`.
+Configuration is stored in `~/Library/Application Support/com.stagehand.app/` (macOS), `~/.config/com.stagehand.app/` (Linux) or `%APPDATA%\com.stagehand.app\` (Windows), as `environments.json` and `workspaces.json`.
 
 ## Documentation
 
 | File | Content |
 |---|---|
+| [ROADMAP.md](ROADMAP.md) | Planned work; next step: local Dispatcher support |
 | [MEMORY.md](MEMORY.md) | Compact context for LLMs: decisions, conventions, status, gotchas. **Read first.** |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Modules, data flow, backend ↔ UI API |
 | [docs/EXTENDING.md](docs/EXTENDING.md) | Step-by-step recipes to add features |
