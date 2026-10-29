@@ -1,0 +1,4 @@
+target/
+src-tauri/gen/
+.tauri-cli-install.log
+.DS_Store
