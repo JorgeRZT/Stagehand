@@ -42,7 +42,7 @@ cd src-tauri && cargo test
 
 ## Releases
 
-Built installers are committed in `dist/<YYYY.MM.DD>/` and published as GitHub Releases tagged `v<YYYY.M.D>` (for example `dist/2026.10.29/Stagehand_2026.10.29_aarch64.dmg`). The app version follows the same calendar scheme. Run `scripts/release.sh` to build today's DMG and place it in the right folder. Builds are unsigned and not notarized yet: on first launch, right-click the app and choose *Open*.
+Installers are published as GitHub Releases tagged `v<YYYY.M.D>`; they are not stored in the source tree. Local builds are written to `dist/<YYYY.MM.DD>/` (git-ignored) (for example `dist/2026.10.29/Stagehand_2026.10.29_aarch64.dmg`). The app version follows the same calendar scheme. Run `scripts/release.sh` to build today's DMG and place it in the right folder. Builds are unsigned and not notarized yet: on first launch, right-click the app and choose *Open*.
 
 ## Features
 
